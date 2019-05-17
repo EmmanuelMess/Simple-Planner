@@ -3,6 +3,11 @@
     xmlns:tools="http://schemas.android.com/tools"
     tools:context="com.emmanuelmess.simpleplanner.MainActivity">
     <item
+        android:id="@+id/action_allevents"
+        android:title="@string/allevents"
+        android:icon="@drawable/ic_view_list_white_24dp"
+        app:showAsAction="ifRoom" />
+    <item
         android:id="@+id/action_settings"
         android:orderInCategory="100"
         android:title="@string/action_settings"

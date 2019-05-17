@@ -3,6 +3,7 @@ package com.emmanuelmess.simpleplanner.events
 import android.content.Context
 import android.text.format.DateUtils
 import androidx.room.*
+import com.emmanuelmess.simpleplanner.common.NoDatabaseException
 import com.emmanuelmess.simpleplanner.events.EventTable.COMMENT_COLUMN
 import com.emmanuelmess.simpleplanner.events.EventTable.EVENT_TABLE
 import com.emmanuelmess.simpleplanner.events.EventTable.ID_COLUMN
@@ -48,8 +49,12 @@ data class EventEntity(
             try {
                 this.delete(futureId.get())
             } catch (e: ExecutionException) {
-                //Database was probably null
-                // and nothing was written to the database
+                if(e.cause is NoDatabaseException) {
+                    //Database was probably null
+                    // and nothing was written to the database
+                } else {
+                    throw RuntimeException(e)
+                }
             }
         }
     )

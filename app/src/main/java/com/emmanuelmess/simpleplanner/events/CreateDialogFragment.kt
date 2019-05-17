@@ -5,12 +5,15 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.DialogFragment
-import com.emmanuelmess.simpleplanner.MainActivity
 import com.emmanuelmess.simpleplanner.R
+import com.emmanuelmess.simpleplanner.common.AppDatabaseAwareActivity
+import com.emmanuelmess.simpleplanner.common.NoDatabaseException
 import kotlinx.android.synthetic.main.fragment_createdialog.*
 import java.lang.ref.WeakReference
 import java.util.*
+import java.util.concurrent.Future
 import java.util.concurrent.FutureTask
+import kotlin.concurrent.thread
 
 class CreateDialogFragment : DialogFragment() {
     companion object {
@@ -56,8 +59,8 @@ class CreateDialogFragment : DialogFragment() {
                     }
 
                     val endCalendar = Calendar.getInstance().apply {
-                        set(Calendar.MINUTE, timeStartChip.minute)
-                        set(Calendar.HOUR_OF_DAY, timeStartChip.hourOfDay)
+                        set(Calendar.MINUTE, timeEndChip.minute)
+                        set(Calendar.HOUR_OF_DAY, timeEndChip.hourOfDay)
                     }
 
                     val entity = EventEntity(
@@ -79,16 +82,18 @@ class CreateDialogFragment : DialogFragment() {
         }
     }
 
-    private fun saveData(entity: EventEntity): FutureTask<Int> {
-        val uDatabase = WeakReference((activity as MainActivity).db)
+    private fun saveData(entity: EventEntity): Future<Int> {
+        val uDatabase = WeakReference((activity as AppDatabaseAwareActivity).database)
 
         val future = FutureTask<Int> {
-            val sDatabase = uDatabase.get() ?: throw NullPointerException()
+            val sDatabase = uDatabase.get() ?: throw NoDatabaseException()
 
             sDatabase.eventDao().insert(entity).toInt()
         }
 
-        future.run()
+        thread {
+            future.run()
+        }
 
         return future
     }

@@ -1,7 +1,10 @@
 package com.emmanuelmess.simpleplanner.common
 
+import android.annotation.SuppressLint
+import androidx.appcompat.app.AppCompatActivity
 import androidx.room.Database
 import androidx.room.RoomDatabase
+import com.emmanuelmess.simpleplanner.SimplePlannerApplication
 import com.emmanuelmess.simpleplanner.events.EventDao
 import com.emmanuelmess.simpleplanner.events.EventEntity
 
@@ -13,3 +16,10 @@ abstract class AppDatabase : RoomDatabase() {
 
     abstract fun eventDao(): EventDao
 }
+
+@SuppressLint("Registered")
+open class AppDatabaseAwareActivity: AppCompatActivity() {
+    val database: AppDatabase get() = (application as SimplePlannerApplication).db
+}
+
+class NoDatabaseException: RuntimeException("The database doesn't exist anymore!")

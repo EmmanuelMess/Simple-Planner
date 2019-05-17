@@ -1,65 +1,42 @@
-package com.emmanuelmess.simpleplanner
+package com.emmanuelmess.simpleplanner.events
 
-import android.content.Intent
 import android.os.Bundle
-import android.view.Menu
-import android.view.MenuItem
+import android.view.View
 import androidx.cardview.widget.CardView
+import com.emmanuelmess.simpleplanner.R
 import com.emmanuelmess.simpleplanner.common.AppDatabaseAwareActivity
 import com.emmanuelmess.simpleplanner.common.AsyncTaskRunnable
 import com.emmanuelmess.simpleplanner.common.MaterialColors
 import com.emmanuelmess.simpleplanner.common.crashOnMainThread
 import com.emmanuelmess.simpleplanner.databinding.CardEventsBinding
-import com.emmanuelmess.simpleplanner.events.AllEventsActivity
-import com.emmanuelmess.simpleplanner.events.CreateDialogFragment
-import com.emmanuelmess.simpleplanner.events.Event
-import com.emmanuelmess.simpleplanner.settings.SettingsActivity
-import kotlinx.android.synthetic.main.activity_main.*
-import kotlinx.android.synthetic.main.content_card_events.view.*
-import kotlinx.android.synthetic.main.content_main.*
+import kotlinx.android.synthetic.main.activity_allevents.*
+import kotlinx.android.synthetic.main.content_all_events.*
+import kotlinx.android.synthetic.main.content_card_events.*
 import java.lang.ref.WeakReference
 import kotlin.concurrent.thread
 
-class MainActivity : AppDatabaseAwareActivity() {
+class AllEventsActivity : AppDatabaseAwareActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_main)
+        setContentView(R.layout.activity_allevents)
         setSupportActionBar(toolbar)
 
-        fab.setOnClickListener { _ ->
-            CreateDialogFragment.newInstance().apply {
-                show(supportFragmentManager.beginTransaction(), CreateDialogFragment.TAG)
-                onPositiveButton = ::add
-            }
-        }
+        supportActionBar?.setDisplayHomeAsUpEnabled(true)
+
+        load()
     }
 
     override fun onResume() {
         super.onResume()
+
         load()
     }
 
-    override fun onCreateOptionsMenu(menu: Menu): Boolean {
-        menuInflater.inflate(R.menu.menu_main, menu)
-        return true
-    }
-
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        return when (item.itemId) {
-            R.id.action_allevents -> {
-                startActivity(Intent(applicationContext, AllEventsActivity::class.java))
-                true
-            }
-            R.id.action_settings -> {
-                startActivity(Intent(applicationContext, SettingsActivity::class.java))
-                true
-            }
-            else -> super.onOptionsItemSelected(item)
-        }
-    }
 
     private fun load() {
+        progressBar.visibility = View.VISIBLE
+
         eventsLayout.removeAllViews()
 
         val uDatabase = WeakReference(database)
@@ -75,6 +52,8 @@ class MainActivity : AppDatabaseAwareActivity() {
                 }
             }
         }) { events ->
+            progressBar.visibility = View.GONE
+
             events.forEach { event ->
                 add(event)
             }
@@ -102,4 +81,5 @@ class MainActivity : AppDatabaseAwareActivity() {
             }
         }
     }
+
 }

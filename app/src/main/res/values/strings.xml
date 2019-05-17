@@ -10,4 +10,6 @@
     <string name="title_activity_settings">Settings</string>
     <string name="action_settings">Settings</string>
     <string name="wake_header">Awake time</string>
+    <string name="title_activity_all_events">AllEventsActivity</string>
+    <string name="allevents">All events</string>
 </resources>
