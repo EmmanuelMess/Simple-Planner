@@ -5,10 +5,7 @@ import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
 import androidx.cardview.widget.CardView
-import com.emmanuelmess.simpleplanner.common.AppDatabaseAwareActivity
-import com.emmanuelmess.simpleplanner.common.AsyncTaskRunnable
-import com.emmanuelmess.simpleplanner.common.MaterialColors
-import com.emmanuelmess.simpleplanner.common.crashOnMainThread
+import com.emmanuelmess.simpleplanner.common.*
 import com.emmanuelmess.simpleplanner.databinding.CardEventsBinding
 import com.emmanuelmess.simpleplanner.events.AllEventsActivity
 import com.emmanuelmess.simpleplanner.events.CreateDialogFragment
@@ -18,6 +15,7 @@ import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.content_card_events.view.*
 import kotlinx.android.synthetic.main.content_main.*
 import java.lang.ref.WeakReference
+import java.util.*
 import kotlin.concurrent.thread
 
 class MainActivity : AppDatabaseAwareActivity() {
@@ -62,6 +60,8 @@ class MainActivity : AppDatabaseAwareActivity() {
     private fun load() {
         eventsLayout.removeAllViews()
 
+        val nowMillis = Calendar.getInstance().setToFirstDay().timeInMillis
+
         val uDatabase = WeakReference(database)
         AsyncTaskRunnable<List<Event>>(true, {
             uDatabase.get().let { sDatabase ->
@@ -69,7 +69,7 @@ class MainActivity : AppDatabaseAwareActivity() {
                     cancel(false)
                     null
                 } else {
-                    sDatabase.eventDao().getAll().map { eventEntity ->
+                    sDatabase.eventDao().getAllDoableNow(nowMillis).map { eventEntity ->
                         eventEntity.toEvent(applicationContext)
                     }
                 }

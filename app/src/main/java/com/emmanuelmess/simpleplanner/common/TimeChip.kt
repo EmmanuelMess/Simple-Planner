@@ -47,7 +47,7 @@ class TimeChip @JvmOverloads constructor(
     }
 
     private fun reloadView() {
-        val calendar = Calendar.getInstance().apply {
+        val calendar = Calendar.getInstance().setToFirstDay().apply {
             set(HOUR_OF_DAY, hourOfDay)
             set(MINUTE, minute)
         }

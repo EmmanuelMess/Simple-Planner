@@ -65,8 +65,8 @@ interface EventDao {
     @Query("SELECT * FROM $EVENT_TABLE")
     fun getAll(): List<EventEntity>
 
-    @Query("SELECT * FROM $EVENT_TABLE WHERE $ID_COLUMN IN (:userIds)")
-    fun loadAllByIds(userIds: IntArray): List<EventEntity>
+    @Query("SELECT * FROM $EVENT_TABLE WHERE (:now) BETWEEN $TIMESTART_COLUMN AND $TIMEEND_COLUMN")
+    fun getAllDoableNow(now: Long): List<EventEntity>
 
     @Insert
     fun insert(event: EventEntity): Long

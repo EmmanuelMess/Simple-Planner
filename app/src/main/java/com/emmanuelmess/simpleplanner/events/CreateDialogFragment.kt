@@ -8,6 +8,7 @@ import androidx.fragment.app.DialogFragment
 import com.emmanuelmess.simpleplanner.R
 import com.emmanuelmess.simpleplanner.common.AppDatabaseAwareActivity
 import com.emmanuelmess.simpleplanner.common.NoDatabaseException
+import com.emmanuelmess.simpleplanner.common.setToFirstDay
 import kotlinx.android.synthetic.main.fragment_createdialog.*
 import java.lang.ref.WeakReference
 import java.util.*
@@ -53,12 +54,12 @@ class CreateDialogFragment : DialogFragment() {
             inflateMenu(R.menu.menu_dialog)
             setOnMenuItemClickListener { item ->
                 if (item.itemId == R.id.action_save) {
-                    val startCalendar = Calendar.getInstance().apply {
+                    val startCalendar = Calendar.getInstance().setToFirstDay().apply {
                         set(Calendar.MINUTE, timeStartChip.minute)
                         set(Calendar.HOUR_OF_DAY, timeStartChip.hourOfDay)
                     }
 
-                    val endCalendar = Calendar.getInstance().apply {
+                    val endCalendar = Calendar.getInstance().setToFirstDay().apply {
                         set(Calendar.MINUTE, timeEndChip.minute)
                         set(Calendar.HOUR_OF_DAY, timeEndChip.hourOfDay)
                     }
