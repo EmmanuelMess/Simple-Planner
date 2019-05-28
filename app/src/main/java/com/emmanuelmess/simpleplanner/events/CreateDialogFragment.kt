@@ -2,6 +2,7 @@ package com.emmanuelmess.simpleplanner.events
 
 import android.os.Bundle
 import android.view.LayoutInflater
+import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.DialogFragment
@@ -52,35 +53,40 @@ class CreateDialogFragment : DialogFragment() {
                 dialog?.cancel()
             }
             inflateMenu(R.menu.menu_dialog)
-            setOnMenuItemClickListener { item ->
-                if (item.itemId == R.id.action_save) {
-                    val startCalendar = Calendar.getInstance().setToFirstDay().apply {
-                        set(Calendar.MINUTE, timeStartChip.minute)
-                        set(Calendar.HOUR_OF_DAY, timeStartChip.hourOfDay)
-                    }
-
-                    val endCalendar = Calendar.getInstance().setToFirstDay().apply {
-                        set(Calendar.MINUTE, timeEndChip.minute)
-                        set(Calendar.HOUR_OF_DAY, timeEndChip.hourOfDay)
-                    }
-
-                    val entity = EventEntity(
-                        null,
-                        titleEditText.text.toString(),
-                        startCalendar.timeInMillis,
-                        endCalendar.timeInMillis,
-                        commentEditText.text.toString()
-                    )
-
-
-                    val futureId = saveData(entity)
-                    onPositiveButton?.invoke(entity.toEvent(context, futureId))
-
-                    dismiss()
-                }
-                item.itemId == R.id.action_save
-            }
+            setOnMenuItemClickListener(::onMenuItemClick)
         }
+    }
+
+    private fun onMenuItemClick(item: MenuItem): Boolean {
+        if (item.itemId == R.id.action_save) {
+            val startCalendar = Calendar.getInstance().setToFirstDay().apply {
+                set(Calendar.MINUTE, timeStartChip.minute)
+                set(Calendar.HOUR_OF_DAY, timeStartChip.hourOfDay)
+            }
+
+            val endCalendar = Calendar.getInstance().setToFirstDay().apply {
+                set(Calendar.MINUTE, timeEndChip.minute)
+                set(Calendar.HOUR_OF_DAY, timeEndChip.hourOfDay)
+            }
+
+            val entity = EventEntity(
+                null,
+                titleEditText.text.toString(),
+                startCalendar.timeInMillis,
+                endCalendar.timeInMillis,
+                commentEditText.text.toString()
+            )
+
+
+            val futureId = saveData(entity)
+            onPositiveButton?.invoke(entity.toEvent(requireContext(), futureId))
+
+            dismiss()
+
+            return true
+        }
+
+        return false
     }
 
     private fun saveData(entity: EventEntity): Future<Int> {
