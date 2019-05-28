@@ -4,6 +4,9 @@ import android.content.Intent
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
+import android.view.View
+import android.view.View.GONE
+import android.view.View.VISIBLE
 import androidx.cardview.widget.CardView
 import com.emmanuelmess.simpleplanner.common.*
 import com.emmanuelmess.simpleplanner.databinding.CardEventsBinding
@@ -20,6 +23,9 @@ import kotlin.concurrent.thread
 
 class MainActivity : AppDatabaseAwareActivity() {
 
+    data class TemporaryCardData(var isExtended: Boolean = false)
+    val temporaryCardDatas = mutableListOf<TemporaryCardData>()
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
@@ -28,7 +34,9 @@ class MainActivity : AppDatabaseAwareActivity() {
         fab.setOnClickListener { _ ->
             CreateDialogFragment.newInstance().apply {
                 show(supportFragmentManager.beginTransaction(), CreateDialogFragment.TAG)
-                onPositiveButton = ::add
+                onPositiveButton = {
+                        event -> add(event, temporaryCardDatas.size)
+                }
             }
         }
     }
@@ -76,20 +84,24 @@ class MainActivity : AppDatabaseAwareActivity() {
             }
         }) { events ->
             events.forEach { event ->
-                add(event)
+                add(event, temporaryCardDatas.size)
+                temporaryCardDatas.add(TemporaryCardData())
             }
         }
     }
 
-    private fun add(event: Event) {
+    private fun add(event: Event, temporaryIndex: Int) {
         val binding = CardEventsBinding.inflate(layoutInflater, eventsLayout, true)
         binding.event = event
-        loadCard(binding.root as CardView, event)
+        loadCard(binding.root as CardView, event, temporaryIndex)
     }
 
-    private fun loadCard(card: CardView, event: Event) = with(card) {
+    private fun loadCard(card: CardView, event: Event, temporaryIndex: Int) = with(card) {
         setCardBackgroundColor(MaterialColors.BLUE_500)
         constraintLayout.setBackgroundColor(MaterialColors.BLUE_500)
+
+        constraintLayout.setOnClickListener({view -> onExtendClick(view, temporaryIndex)})
+
         doneButton.setOnClickListener {
             eventsLayout.removeView(card)
             val uDatabase = WeakReference(database)
@@ -100,6 +112,19 @@ class MainActivity : AppDatabaseAwareActivity() {
                     }
                 }
             }
+        }
+    }
+
+    private fun onExtendClick(constraintLayout: View, temporaryIndex: Int) = with(constraintLayout) {
+        val temporaryCardData = temporaryCardDatas[temporaryIndex]
+        temporaryCardData.isExtended = !temporaryCardData.isExtended
+
+        if(temporaryCardData.isExtended) {
+            commentTextView.visibility = VISIBLE
+            dropImageView.setImageResource(R.drawable.ic_arrow_drop_up_black_24dp)
+        } else {
+            commentTextView.visibility = GONE
+            dropImageView.setImageResource(R.drawable.ic_arrow_drop_down_black_24dp)
         }
     }
 }
