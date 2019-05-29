@@ -4,6 +4,8 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.MenuItem
 import android.view.View
+import android.view.View.GONE
+import android.view.View.VISIBLE
 import android.view.ViewGroup
 import androidx.fragment.app.DialogFragment
 import com.emmanuelmess.simpleplanner.R
@@ -55,6 +57,34 @@ class CreateDialogFragment : DialogFragment() {
             inflateMenu(R.menu.menu_dialog)
             setOnMenuItemClickListener(::onMenuItemClick)
         }
+
+
+        titleEditText.setOnEditorActionListener { v, actionId, event ->
+            if(titleEditText.text != null && titleEditText.text!!.isEmpty()) {
+                titleTextInputLayout.error = null
+            }
+
+            false
+        }
+
+        val callback = {
+            val startCalendar = Calendar.getInstance().setToFirstDay().apply {
+                set(Calendar.MINUTE, timeStartChip.minute)
+                set(Calendar.HOUR_OF_DAY, timeStartChip.hourOfDay)
+            }
+
+            val endCalendar = Calendar.getInstance().setToFirstDay().apply {
+                set(Calendar.MINUTE, timeEndChip.minute)
+                set(Calendar.HOUR_OF_DAY, timeEndChip.hourOfDay)
+            }
+
+            if(startCalendar.before(endCalendar)
+                && !(timeStartChip.minute == timeEndChip.minute && timeStartChip.hourOfDay == timeEndChip.hourOfDay)) {
+                errorTextView.visibility = GONE
+            }
+        }
+        timeStartChip.callback = callback
+        timeEndChip.callback = callback
     }
 
     private fun onMenuItemClick(item: MenuItem): Boolean {
@@ -67,6 +97,22 @@ class CreateDialogFragment : DialogFragment() {
             val endCalendar = Calendar.getInstance().setToFirstDay().apply {
                 set(Calendar.MINUTE, timeEndChip.minute)
                 set(Calendar.HOUR_OF_DAY, timeEndChip.hourOfDay)
+            }
+
+            var checkFailed = false
+            if(!startCalendar.before(endCalendar)
+                || (timeStartChip.minute == timeEndChip.minute && timeStartChip.hourOfDay == timeEndChip.hourOfDay)) {
+                errorTextView.visibility = VISIBLE
+                checkFailed = true
+            }
+
+            if(titleEditText.text == null || titleEditText.text!!.isEmpty()) {
+                titleTextInputLayout.error = "Title can't be empty"
+                checkFailed = true
+            }
+
+            if(checkFailed) {
+                return true
             }
 
             val entity = EventEntity(

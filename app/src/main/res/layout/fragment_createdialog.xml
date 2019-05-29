@@ -32,7 +32,7 @@
             android:layout_height="match_parent">
 
             <com.google.android.material.textfield.TextInputLayout
-                android:id="@+id/textInputLayout2"
+                android:id="@+id/titleTextInputLayout"
                 android:layout_width="395dp"
                 android:layout_height="wrap_content"
                 android:layout_marginEnd="8dp"
@@ -59,6 +59,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginLeft="8dp"
                 android:layout_marginStart="8dp"
+                android:paddingLeft="4dp"
                 android:text="@string/starting_hour"
                 app:layout_constraintBottom_toBottomOf="@+id/timeStartChip"
                 app:layout_constraintStart_toStartOf="parent"
@@ -70,10 +71,10 @@
                 android:layout_height="wrap_content"
                 android:layout_marginEnd="8dp"
                 android:layout_marginRight="8dp"
-                android:layout_marginTop="8dp"
+                android:layout_marginTop="16dp"
                 android:textAppearance="@style/TextAppearance.AppCompat.Medium"
                 app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/textInputLayout2"
+                app:layout_constraintTop_toBottomOf="@+id/divider"
                 tools:text="18:30" />
 
             <TextView
@@ -82,6 +83,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginLeft="8dp"
                 android:layout_marginStart="8dp"
+                android:paddingLeft="4dp"
                 android:text="@string/ending_hour"
                 app:layout_constraintBottom_toBottomOf="@+id/timeEndChip"
                 app:layout_constraintStart_toStartOf="parent"
@@ -99,6 +101,25 @@
                 app:layout_constraintTop_toBottomOf="@+id/timeStartChip"
                 tools:text="18:30" />
 
+            <TextView
+                android:id="@+id/errorTextView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="8dp"
+                android:layout_marginLeft="8dp"
+                android:layout_marginRight="8dp"
+                android:layout_marginStart="8dp"
+                android:layout_marginTop="8dp"
+                android:paddingLeft="4dp"
+                android:text="Must start before it ends!"
+                android:textColor="@color/colorError"
+                android:textSize="12sp"
+                android:visibility="gone"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintHorizontal_bias="0.0"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/textView2" />
+
             <EditText
                 android:id="@+id/commentEditText"
                 android:layout_width="0dp"
@@ -108,7 +129,7 @@
                 android:layout_marginLeft="8dp"
                 android:layout_marginRight="8dp"
                 android:layout_marginStart="8dp"
-                android:layout_marginTop="8dp"
+                android:layout_marginTop="16dp"
                 android:ems="10"
                 android:gravity="start|top"
                 android:hint="@string/comments"
@@ -118,8 +139,28 @@
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintHorizontal_bias="0.0"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/timeEndChip"
+                app:layout_constraintTop_toBottomOf="@+id/divider2"
                 app:layout_constraintVertical_bias="0.0" />
+
+            <View
+                android:id="@+id/divider"
+                android:layout_width="395dp"
+                android:layout_height="1dp"
+                android:layout_marginTop="16dp"
+                android:background="?android:attr/listDivider"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/titleTextInputLayout" />
+
+            <View
+                android:id="@+id/divider2"
+                android:layout_width="395dp"
+                android:layout_height="1dp"
+                android:layout_marginTop="16dp"
+                android:background="?android:attr/listDivider"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/timeEndChip" />
 
         </androidx.constraintlayout.widget.ConstraintLayout>
     </FrameLayout>

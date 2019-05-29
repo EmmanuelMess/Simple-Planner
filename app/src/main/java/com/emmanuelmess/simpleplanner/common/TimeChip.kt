@@ -18,10 +18,12 @@ class TimeChip @JvmOverloads constructor(
     context: Context,
     attrs: AttributeSet? = null
 ): Chip(context, attrs) {
+    var callback: (() -> Unit)? = null
     var hourOfDay = 10
         private set
     var minute = 0
         private set
+
     init {
         chipIcon = getDrawable(context, R.drawable.ic_access_time_black_24dp)
 
@@ -32,6 +34,16 @@ class TimeChip @JvmOverloads constructor(
         reloadView()
     }
 
+    var error: Boolean? = null
+        set(value) {
+            if(value != null) {
+                setChipBackgroundColorResource(R.color.colorError)
+            } else {
+                setChipBackgroundColorResource(R.color.colorAccent)
+            }
+            field = value
+        }
+
     private fun onClick(view: View) {
         TimePickerDialog(
             context,
@@ -39,6 +51,7 @@ class TimeChip @JvmOverloads constructor(
                 this.hourOfDay = hourOfDay
                 this.minute = minute
                 reloadView()
+                callback?.invoke()
             },
             hourOfDay,
             minute,
