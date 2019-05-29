@@ -27,7 +27,7 @@ class TimeChip @JvmOverloads constructor(
     init {
         chipIcon = getDrawable(context, R.drawable.ic_access_time_black_24dp)
 
-        setChipBackgroundColorResource(R.color.colorAccent)
+        setChipBackgroundColorResource(R.color.accent)
 
         setOnClickListener(::onClick)
 
@@ -37,9 +37,9 @@ class TimeChip @JvmOverloads constructor(
     var error: Boolean? = null
         set(value) {
             if(value != null) {
-                setChipBackgroundColorResource(R.color.colorError)
+                setChipBackgroundColorResource(R.color.error)
             } else {
-                setChipBackgroundColorResource(R.color.colorAccent)
+                setChipBackgroundColorResource(R.color.accent)
             }
             field = value
         }
