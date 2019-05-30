@@ -67,8 +67,8 @@ class AllEventsActivity : AppDatabaseAwareActivity() {
     }
 
     private fun loadCard(card: CardView, event: Event) = with(card) {
-        setCardBackgroundColor(MaterialColors.BLUE_500)
-        constraintLayout.setBackgroundColor(MaterialColors.BLUE_500)
+        setCardBackgroundColor(MaterialColors.GREEN_500)
+        constraintLayout.setBackgroundColor(MaterialColors.GREEN_500)
         doneButton.setOnClickListener {
             eventsLayout.removeView(card)
             val uDatabase = WeakReference(database)

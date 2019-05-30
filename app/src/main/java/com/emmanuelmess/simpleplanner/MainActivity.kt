@@ -97,8 +97,8 @@ class MainActivity : AppDatabaseAwareActivity() {
     }
 
     private fun loadCard(card: CardView, event: Event, temporaryIndex: Int) = with(card) {
-        setCardBackgroundColor(MaterialColors.BLUE_500)
-        constraintLayout.setBackgroundColor(MaterialColors.BLUE_500)
+        setCardBackgroundColor(MaterialColors.GREEN_500)
+        constraintLayout.setBackgroundColor(MaterialColors.GREEN_500)
 
         constraintLayout.setOnClickListener({view -> onExtendClick(view, temporaryIndex)})
 
