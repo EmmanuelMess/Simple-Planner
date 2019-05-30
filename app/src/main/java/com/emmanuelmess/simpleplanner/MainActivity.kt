@@ -34,8 +34,8 @@ class MainActivity : AppDatabaseAwareActivity() {
         fab.setOnClickListener { _ ->
             CreateDialogFragment.newInstance().apply {
                 show(supportFragmentManager.beginTransaction(), CreateDialogFragment.TAG)
-                onPositiveButton = {
-                        event -> add(event, temporaryCardDatas.size)
+                onPositiveButton = { event ->
+                    add(event, temporaryCardDatas.size)
                 }
             }
         }
