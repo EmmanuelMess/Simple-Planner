@@ -8,8 +8,10 @@ import android.view.View
 import android.view.View.GONE
 import android.view.View.VISIBLE
 import androidx.cardview.widget.CardView
+import androidx.databinding.ViewDataBinding
 import com.emmanuelmess.simpleplanner.common.*
 import com.emmanuelmess.simpleplanner.databinding.CardEventsBinding
+import com.emmanuelmess.simpleplanner.databinding.CardEventsNocommentBinding
 import com.emmanuelmess.simpleplanner.events.AllEventsActivity
 import com.emmanuelmess.simpleplanner.events.CreateDialogFragment
 import com.emmanuelmess.simpleplanner.events.Event
@@ -23,7 +25,12 @@ import kotlin.concurrent.thread
 
 class MainActivity : AppDatabaseAwareActivity() {
 
-    data class TemporaryCardData(var isExtended: Boolean = false)
+    data class TemporaryCardData(var type: Int, var isExtended: Boolean? = null) {
+        companion object {
+            val NO_COMMENT_TYPE = 0
+            val COMMENTED_TYPE = 1
+        }
+    }
     val temporaryCardDatas = mutableListOf<TemporaryCardData>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -34,9 +41,7 @@ class MainActivity : AppDatabaseAwareActivity() {
         fab.setOnClickListener { _ ->
             CreateDialogFragment.newInstance().apply {
                 show(supportFragmentManager.beginTransaction(), CreateDialogFragment.TAG)
-                onPositiveButton = { event ->
-                    add(event, temporaryCardDatas.size)
-                }
+                onPositiveButton = ::createEventViewFromEvent
             }
         }
     }
@@ -83,26 +88,53 @@ class MainActivity : AppDatabaseAwareActivity() {
                 }
             }
         }) { events ->
-            events.forEach { event ->
-                add(event, temporaryCardDatas.size)
-                temporaryCardDatas.add(TemporaryCardData())
-            }
+            events.forEach(::createEventViewFromEvent)
         }
     }
 
-    private fun add(event: Event, temporaryIndex: Int) {
-        val binding = CardEventsBinding.inflate(layoutInflater, eventsLayout, true)
-        binding.event = event
-        loadCard(binding.root as CardView, event, temporaryIndex)
+    private fun createEventViewFromEvent(event: Event) {
+        val type: Int
+        val isExtended: Boolean?
+        if (event.comment.isEmpty()) {
+            type = TemporaryCardData.NO_COMMENT_TYPE
+            isExtended = null
+        } else {
+            type = TemporaryCardData.COMMENTED_TYPE
+            isExtended = false
+        }
+
+        val temporaryCardData = TemporaryCardData(type, isExtended)
+
+        temporaryCardDatas.add(temporaryCardData)
+        add(event, temporaryCardData)
     }
 
-    private fun loadCard(card: CardView, event: Event, temporaryIndex: Int) = with(card) {
+    private fun add(event: Event, temporaryCardData: TemporaryCardData) {
+        val binding: ViewDataBinding
+
+        if(temporaryCardData.type == TemporaryCardData.NO_COMMENT_TYPE) {
+            binding = CardEventsNocommentBinding.inflate(layoutInflater, eventsLayout, true)
+            binding.event = event
+        } else {
+            binding = CardEventsBinding.inflate(layoutInflater, eventsLayout, true)
+            binding.event = event
+        }
+
+        loadCard(binding.root as CardView, event, temporaryCardData)
+    }
+
+    private fun loadCard(card: CardView, event: Event, temporaryCardData: TemporaryCardData) = with(card) {
         setCardBackgroundColor(MaterialColors.GREEN_500)
         constraintLayout.setBackgroundColor(MaterialColors.GREEN_500)
 
-        constraintLayout.setOnClickListener({view -> onExtendClick(view, temporaryIndex)})
+        if(temporaryCardData.type == TemporaryCardData.COMMENTED_TYPE) {
+            constraintLayout.setOnClickListener { view ->
+                onExtendClick(view, temporaryCardData)
+            }
+        }
 
         doneButton.setOnClickListener {
+            temporaryCardDatas.remove(temporaryCardData)
             eventsLayout.removeView(card)
             val uDatabase = WeakReference(database)
             thread {
@@ -115,16 +147,16 @@ class MainActivity : AppDatabaseAwareActivity() {
         }
     }
 
-    private fun onExtendClick(constraintLayout: View, temporaryIndex: Int) = with(constraintLayout) {
-        val temporaryCardData = temporaryCardDatas[temporaryIndex]
-        temporaryCardData.isExtended = !temporaryCardData.isExtended
-
-        if(temporaryCardData.isExtended) {
-            commentTextView.visibility = VISIBLE
-            dropImageView.setImageResource(R.drawable.ic_arrow_drop_up_black_24dp)
-        } else {
-            commentTextView.visibility = GONE
-            dropImageView.setImageResource(R.drawable.ic_arrow_drop_down_black_24dp)
+    private fun onExtendClick(constraintLayout: View, temporaryCardData: TemporaryCardData) = with(constraintLayout) {
+        temporaryCardData.isExtended = !(temporaryCardData.isExtended!!)
+        temporaryCardData.isExtended!!.let { isExtended ->
+            if (isExtended) {
+                commentTextView.visibility = VISIBLE
+                dropImageView.setImageResource(R.drawable.ic_arrow_drop_up_black_24dp)
+            } else {
+                commentTextView.visibility = GONE
+                dropImageView.setImageResource(R.drawable.ic_arrow_drop_down_black_24dp)
+            }
         }
     }
 }
