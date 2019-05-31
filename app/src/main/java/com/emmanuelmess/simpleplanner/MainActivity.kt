@@ -4,20 +4,18 @@ import android.content.Intent
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
-import android.view.View
-import android.view.View.GONE
-import android.view.View.VISIBLE
 import androidx.cardview.widget.CardView
 import androidx.databinding.ViewDataBinding
 import com.emmanuelmess.simpleplanner.common.*
-import com.emmanuelmess.simpleplanner.databinding.CardEventsBinding
+import com.emmanuelmess.simpleplanner.databinding.CardEventsCommentcontractedBinding
+import com.emmanuelmess.simpleplanner.databinding.CardEventsCommentextendedBinding
 import com.emmanuelmess.simpleplanner.databinding.CardEventsNocommentBinding
 import com.emmanuelmess.simpleplanner.events.AllEventsActivity
 import com.emmanuelmess.simpleplanner.events.CreateDialogFragment
 import com.emmanuelmess.simpleplanner.events.Event
 import com.emmanuelmess.simpleplanner.settings.SettingsActivity
 import kotlinx.android.synthetic.main.activity_main.*
-import kotlinx.android.synthetic.main.content_card_events.view.*
+import kotlinx.android.synthetic.main.content_card_events_commentcontracted.view.*
 import kotlinx.android.synthetic.main.content_main.*
 import java.lang.ref.WeakReference
 import java.util.*
@@ -25,7 +23,7 @@ import kotlin.concurrent.thread
 
 class MainActivity : AppDatabaseAwareActivity() {
 
-    data class TemporaryCardData(var type: Int, var isExtended: Boolean? = null) {
+    data class TemporaryCardData(val event: Event, var type: Int, var isExtended: Boolean? = null) {
         companion object {
             val NO_COMMENT_TYPE = 0
             val COMMENTED_TYPE = 1
@@ -103,33 +101,33 @@ class MainActivity : AppDatabaseAwareActivity() {
             isExtended = false
         }
 
-        val temporaryCardData = TemporaryCardData(type, isExtended)
+        val temporaryCardData = TemporaryCardData(event, type, isExtended)
 
         temporaryCardDatas.add(temporaryCardData)
-        add(event, temporaryCardData)
+        add(event, temporaryCardData, temporaryCardDatas.size-1)
     }
 
-    private fun add(event: Event, temporaryCardData: TemporaryCardData) {
+    private fun add(event: Event, temporaryCardData: TemporaryCardData, index: Int) {
         val binding: ViewDataBinding
 
         if(temporaryCardData.type == TemporaryCardData.NO_COMMENT_TYPE) {
             binding = CardEventsNocommentBinding.inflate(layoutInflater, eventsLayout, true)
             binding.event = event
         } else {
-            binding = CardEventsBinding.inflate(layoutInflater, eventsLayout, true)
+            binding = CardEventsCommentcontractedBinding.inflate(layoutInflater, eventsLayout, true)
             binding.event = event
         }
 
-        loadCard(binding.root as CardView, event, temporaryCardData)
+        loadCard(binding.root as CardView, event, index, temporaryCardData)
     }
 
-    private fun loadCard(card: CardView, event: Event, temporaryCardData: TemporaryCardData) = with(card) {
+    private fun loadCard(card: CardView, event: Event, index: Int, temporaryCardData: TemporaryCardData) = with(card) {
         setCardBackgroundColor(MaterialColors.GREEN_500)
         constraintLayout.setBackgroundColor(MaterialColors.GREEN_500)
 
         if(temporaryCardData.type == TemporaryCardData.COMMENTED_TYPE) {
-            constraintLayout.setOnClickListener { view ->
-                onExtendClick(view, temporaryCardData)
+            constraintLayout.setOnClickListener { _ ->
+                onExtendClick(index, temporaryCardData)
             }
         }
 
@@ -147,15 +145,26 @@ class MainActivity : AppDatabaseAwareActivity() {
         }
     }
 
-    private fun onExtendClick(constraintLayout: View, temporaryCardData: TemporaryCardData) = with(constraintLayout) {
+    private fun onExtendClick(index: Int, temporaryCardData: TemporaryCardData) {
         temporaryCardData.isExtended = !(temporaryCardData.isExtended!!)
         temporaryCardData.isExtended!!.let { isExtended ->
+            val options =  
+
+
+            eventsLayout.removeViewAt(index)
+
             if (isExtended) {
-                commentTextView.visibility = VISIBLE
-                dropImageView.setImageResource(R.drawable.ic_arrow_drop_up_black_24dp)
+                val binding = CardEventsCommentextendedBinding.inflate(layoutInflater, eventsLayout, false)
+                eventsLayout.addView(binding.root, index)
+                binding.event = temporaryCardData.event
+
+                loadCard(binding.root as CardView, temporaryCardData.event, index, temporaryCardData)
             } else {
-                commentTextView.visibility = GONE
-                dropImageView.setImageResource(R.drawable.ic_arrow_drop_down_black_24dp)
+                val binding = CardEventsCommentcontractedBinding.inflate(layoutInflater, eventsLayout, false)
+                eventsLayout.addView(binding.root, index)
+                binding.event = temporaryCardData.event
+
+                loadCard(binding.root as CardView, temporaryCardData.event, index, temporaryCardData)
             }
         }
     }

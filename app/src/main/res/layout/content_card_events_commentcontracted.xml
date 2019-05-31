@@ -82,25 +82,5 @@
             app:layout_constraintVertical_bias="1.0"
             tools:text="10:00 to 22:00" />
 
-        <TextView
-            android:id="@+id/commentTextView"
-            android:layout_width="0dp"
-            android:layout_height="0dp"
-            android:layout_marginBottom="8dp"
-            android:layout_marginEnd="8dp"
-            android:layout_marginLeft="16dp"
-            android:layout_marginRight="8dp"
-            android:layout_marginStart="16dp"
-            android:layout_marginTop="8dp"
-            android:text="@{event.comment}"
-            android:textSize="18sp"
-            android:visibility="gone"
-            app:layout_constraintBottom_toTopOf="@+id/timeSpanTextView"
-            app:layout_constraintEnd_toStartOf="@+id/doneButton"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/titleEditText"
-            tools:text="Bakery and Bread.\nMeat and Seafood.\nPasta and Rice."
-            tools:visibility="visible" />
-
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

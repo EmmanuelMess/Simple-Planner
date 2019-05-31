@@ -8,10 +8,10 @@ import com.emmanuelmess.simpleplanner.common.AppDatabaseAwareActivity
 import com.emmanuelmess.simpleplanner.common.AsyncTaskRunnable
 import com.emmanuelmess.simpleplanner.common.MaterialColors
 import com.emmanuelmess.simpleplanner.common.crashOnMainThread
-import com.emmanuelmess.simpleplanner.databinding.CardEventsBinding
+import com.emmanuelmess.simpleplanner.databinding.CardEventsCommentextendedBinding
 import kotlinx.android.synthetic.main.activity_allevents.*
 import kotlinx.android.synthetic.main.content_all_events.*
-import kotlinx.android.synthetic.main.content_card_events.*
+import kotlinx.android.synthetic.main.content_card_events_commentcontracted.*
 import java.lang.ref.WeakReference
 import kotlin.concurrent.thread
 
@@ -61,7 +61,7 @@ class AllEventsActivity : AppDatabaseAwareActivity() {
     }
 
     private fun add(event: Event) {
-        val binding = CardEventsBinding.inflate(layoutInflater, eventsLayout, true)
+        val binding = CardEventsCommentextendedBinding.inflate(layoutInflater, eventsLayout, true)
         binding.event = event
         loadCard(binding.root as CardView, event)
     }

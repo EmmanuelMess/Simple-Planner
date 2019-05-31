@@ -13,7 +13,7 @@
         app:cardCornerRadius="8dp">
 
         <include
-            layout="@layout/content_card_events"
+            layout="@layout/content_card_events_commentcontracted"
             app:event="@{event}" />
 
     </androidx.cardview.widget.CardView>
