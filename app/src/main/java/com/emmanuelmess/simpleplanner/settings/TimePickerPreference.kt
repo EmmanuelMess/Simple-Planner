@@ -7,7 +7,7 @@ import android.text.format.DateUtils
 import android.util.AttributeSet
 import android.widget.TimePicker
 import androidx.preference.DialogPreference
-import com.emmanuelmess.simpleplanner.common.setToFirstDay
+import com.emmanuelmess.simpleplanner.common.setToFirstInstant
 import java.util.*
 
 class TimePickerPreference(ctxt: Context, attrs: AttributeSet) : DialogPreference(ctxt, attrs) {
@@ -27,7 +27,7 @@ class TimePickerPreference(ctxt: Context, attrs: AttributeSet) : DialogPreferenc
                 this.hourOfDay = hourOfDay
                 this.minute = minute
 
-                val calendar = Calendar.getInstance().setToFirstDay().apply {
+                val calendar = Calendar.getInstance().setToFirstInstant().apply {
                     set(Calendar.MINUTE, minute)
                     set(Calendar.HOUR_OF_DAY, hourOfDay)
                 }
@@ -50,7 +50,7 @@ class TimePickerPreference(ctxt: Context, attrs: AttributeSet) : DialogPreferenc
             getPersistedLong(defaultValue as Long)
         }
 
-        val calendar = Calendar.getInstance().setToFirstDay().apply {
+        val calendar = Calendar.getInstance().setToFirstInstant().apply {
             timeInMillis = time
         }
 
@@ -60,7 +60,7 @@ class TimePickerPreference(ctxt: Context, attrs: AttributeSet) : DialogPreferenc
 
     class TimeSummaryProvider: SummaryProvider<TimePickerPreference> {
         override fun provideSummary(preference: TimePickerPreference): CharSequence {
-            val calendar = Calendar.getInstance().setToFirstDay().apply {
+            val calendar = Calendar.getInstance().setToFirstInstant().apply {
                 set(Calendar.MINUTE, preference.minute)
                 set(Calendar.HOUR_OF_DAY, preference.hourOfDay)
             }

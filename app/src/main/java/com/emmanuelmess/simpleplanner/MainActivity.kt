@@ -148,9 +148,6 @@ class MainActivity : AppDatabaseAwareActivity() {
     private fun onExtendClick(index: Int, temporaryCardData: TemporaryCardData) {
         temporaryCardData.isExtended = !(temporaryCardData.isExtended!!)
         temporaryCardData.isExtended!!.let { isExtended ->
-            val options =  
-
-
             eventsLayout.removeViewAt(index)
 
             if (isExtended) {

@@ -11,7 +11,7 @@ import androidx.fragment.app.DialogFragment
 import com.emmanuelmess.simpleplanner.R
 import com.emmanuelmess.simpleplanner.common.AppDatabaseAwareActivity
 import com.emmanuelmess.simpleplanner.common.NoDatabaseException
-import com.emmanuelmess.simpleplanner.common.setToFirstDay
+import com.emmanuelmess.simpleplanner.common.setToFirstInstant
 import kotlinx.android.synthetic.main.fragment_createdialog.*
 import java.lang.ref.WeakReference
 import java.util.*
@@ -68,12 +68,12 @@ class CreateDialogFragment : DialogFragment() {
         }
 
         val callback = {
-            val startCalendar = Calendar.getInstance().setToFirstDay().apply {
+            val startCalendar = Calendar.getInstance().setToFirstInstant().apply {
                 set(Calendar.MINUTE, timeStartChip.minute)
                 set(Calendar.HOUR_OF_DAY, timeStartChip.hourOfDay)
             }
 
-            val endCalendar = Calendar.getInstance().setToFirstDay().apply {
+            val endCalendar = Calendar.getInstance().setToFirstInstant().apply {
                 set(Calendar.MINUTE, timeEndChip.minute)
                 set(Calendar.HOUR_OF_DAY, timeEndChip.hourOfDay)
             }
@@ -89,12 +89,12 @@ class CreateDialogFragment : DialogFragment() {
 
     private fun onMenuItemClick(item: MenuItem): Boolean {
         if (item.itemId == R.id.action_save) {
-            val startCalendar = Calendar.getInstance().setToFirstDay().apply {
+            val startCalendar = Calendar.getInstance().setToFirstInstant().apply {
                 set(Calendar.MINUTE, timeStartChip.minute)
                 set(Calendar.HOUR_OF_DAY, timeStartChip.hourOfDay)
             }
 
-            val endCalendar = Calendar.getInstance().setToFirstDay().apply {
+            val endCalendar = Calendar.getInstance().setToFirstInstant().apply {
                 set(Calendar.MINUTE, timeEndChip.minute)
                 set(Calendar.HOUR_OF_DAY, timeEndChip.hourOfDay)
             }
