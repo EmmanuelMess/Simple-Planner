@@ -2,6 +2,7 @@ package com.emmanuelmess.simpleplanner.common
 
 import android.annotation.SuppressLint
 import androidx.appcompat.app.AppCompatActivity
+import androidx.fragment.app.Fragment
 import androidx.room.Database
 import androidx.room.RoomDatabase
 import com.emmanuelmess.simpleplanner.SimplePlannerApplication
@@ -20,6 +21,11 @@ abstract class AppDatabase : RoomDatabase() {
 @SuppressLint("Registered")
 open class AppDatabaseAwareActivity: AppCompatActivity() {
     val database: AppDatabase get() = (application as SimplePlannerApplication).db
+}
+
+@SuppressLint("Registered")
+open class AppDatabaseAwareFragment: Fragment() {
+    val database: AppDatabase get() = (activity as AppDatabaseAwareActivity).database
 }
 
 class NoDatabaseException: RuntimeException("The database doesn't exist anymore!")

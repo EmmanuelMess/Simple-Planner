@@ -20,15 +20,20 @@
     <PreferenceCategory
         app:title="@string/wake_header">
 
-        <com.emmanuelmess.simpleplanner.settings.TimePickerPreference
+        <SwitchPreference
             android:icon="@drawable/ic_brightness_5_black_24dp"
-            app:key="startDayTime"
-            app:title="Day starts at" />
+            app:key="useDayNight"
+            app:title="No events during the night"/>
 
         <com.emmanuelmess.simpleplanner.settings.TimePickerPreference
-            android:icon="@drawable/ic_brightness_3_black_24dp"
+            app:key="startDayTime"
+            app:title="Day starts at"
+            app:dependency="useDayNight"/>
+
+        <com.emmanuelmess.simpleplanner.settings.TimePickerPreference
             app:key="endDayTime"
-            app:title="Day ends at"/>
+            app:title="Day ends at"
+            app:dependency="useDayNight"/>
 
     </PreferenceCategory>
 
