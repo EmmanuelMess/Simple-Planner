@@ -20,12 +20,78 @@ class MainActivity : AppDatabaseAwareActivity() {
      * Iff the main fragment is available it will be referenced here
      */
     var mainFragment: MainFragment? = null
+    var nighttimeCallbackTimer: Timer? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         setSupportActionBar(toolbar)
 
+        showCorrectFragment()
+    }
+
+    override fun onResume() {
+        super.onResume()
+        setCallback()
+    }
+
+    override fun onPause() {
+        super.onPause()
+        nighttimeCallbackTimer?.cancel()
+    }
+
+    override fun onCreateOptionsMenu(menu: Menu): Boolean {
+        menuInflater.inflate(R.menu.menu_main, menu)
+        return true
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        return when (item.itemId) {
+            R.id.action_allevents -> {
+                startActivity(Intent(applicationContext, AllEventsActivity::class.java))
+                true
+            }
+            R.id.action_settings -> {
+                startActivity(Intent(applicationContext, SettingsActivity::class.java))
+                true
+            }
+            else -> super.onOptionsItemSelected(item)
+        }
+    }
+
+    private fun setCallback() {
+        val callback = { runOnUiThread { showCorrectFragment() } }
+        val preferences = PreferenceManager.getDefaultSharedPreferences(applicationContext)
+        val now = Calendar.getInstance()
+        val timeToCallback: Long
+
+        if(showNighttimeFragment()) {
+            val startDaytime = Calendar.getInstance().apply {
+                timeInMillis = preferences.getLong("startDayTime", 0)
+                set(Calendar.YEAR, now.get(Calendar.YEAR))
+                set(Calendar.MONTH, now.get(Calendar.MONTH))
+                set(Calendar.DAY_OF_MONTH, now.get(Calendar.DAY_OF_MONTH))
+            }
+
+            timeToCallback =  startDaytime.timeInMillis - now.timeInMillis
+        } else {
+            val endDaytime = Calendar.getInstance().apply {
+                timeInMillis = preferences.getLong("endDayTime", 0)
+                set(Calendar.YEAR, now.get(Calendar.YEAR))
+                set(Calendar.MONTH, now.get(Calendar.MONTH))
+                set(Calendar.DAY_OF_MONTH, now.get(Calendar.DAY_OF_MONTH))
+            }
+
+            timeToCallback = endDaytime.timeInMillis - now.timeInMillis
+        }
+
+        nighttimeCallbackTimer = Timer()
+        nighttimeCallbackTimer!!.schedule(object : TimerTask() {
+            override fun run() = callback.invoke()
+        }, timeToCallback, 0)
+    }
+
+    private fun showCorrectFragment() {
         if (showNighttimeFragment()) {
             fab.hide()
             supportFragmentManager
@@ -47,25 +113,8 @@ class MainActivity : AppDatabaseAwareActivity() {
                 }
             }
         }
-    }
 
-    override fun onCreateOptionsMenu(menu: Menu): Boolean {
-        menuInflater.inflate(R.menu.menu_main, menu)
-        return true
-    }
-
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        return when (item.itemId) {
-            R.id.action_allevents -> {
-                startActivity(Intent(applicationContext, AllEventsActivity::class.java))
-                true
-            }
-            R.id.action_settings -> {
-                startActivity(Intent(applicationContext, SettingsActivity::class.java))
-                true
-            }
-            else -> super.onOptionsItemSelected(item)
-        }
+        setCallback()
     }
 
     private fun showNighttimeFragment(): Boolean {
