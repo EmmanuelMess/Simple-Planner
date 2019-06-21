@@ -27,13 +27,10 @@ class TimePickerPreference(ctxt: Context, attrs: AttributeSet) : DialogPreferenc
                 this.hourOfDay = hourOfDay
                 this.minute = minute
 
-                val calendar = Calendar.getInstance().setToFirstInstant().apply {
-                    set(Calendar.MINUTE, minute)
-                    set(Calendar.HOUR_OF_DAY, hourOfDay)
-                }
+                val saveable = Time(hourOfDay, minute)
 
-                if(callChangeListener(calendar.timeInMillis)) {
-                    persistLong(calendar.timeInMillis)
+                if(callChangeListener(saveable)) {
+                    persistString(saveable.toString())
                     notifyChanged()
                 }
             },
@@ -44,18 +41,14 @@ class TimePickerPreference(ctxt: Context, attrs: AttributeSet) : DialogPreferenc
     }
 
     override fun onSetInitialValue(defaultValue: Any?) {
-        val time: Long = if (defaultValue == null) {
-            getPersistedLong(0L)
-        } else {
-            getPersistedLong(defaultValue as Long)
+        if (defaultValue !is String) {
+            throw IllegalArgumentException()
         }
 
-        val calendar = Calendar.getInstance().setToFirstInstant().apply {
-            timeInMillis = time
-        }
+        val time: Time = getPersistedString(defaultValue)!!.toTime()
 
-        hourOfDay = calendar.get(Calendar.HOUR_OF_DAY)
-        minute = calendar.get(Calendar.MINUTE)
+        hourOfDay = time.hourOfDay
+        minute = time.minute
     }
 
     class TimeSummaryProvider: SummaryProvider<TimePickerPreference> {

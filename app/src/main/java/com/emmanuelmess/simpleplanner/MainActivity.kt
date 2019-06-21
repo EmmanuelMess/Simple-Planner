@@ -11,6 +11,8 @@ import com.emmanuelmess.simpleplanner.events.CreateDialogFragment
 import com.emmanuelmess.simpleplanner.events.MainFragment
 import com.emmanuelmess.simpleplanner.nightstate.NighttimeFragment
 import com.emmanuelmess.simpleplanner.settings.SettingsActivity
+import com.emmanuelmess.simpleplanner.settings.Time
+import com.emmanuelmess.simpleplanner.settings.toTime
 import kotlinx.android.synthetic.main.activity_main.*
 import java.util.*
 
@@ -66,23 +68,10 @@ class MainActivity : AppDatabaseAwareActivity() {
         val timeToCallback: Long
 
         if(showNighttimeFragment()) {
-            val startDaytime = Calendar.getInstance().apply {
-                timeInMillis = preferences.getLong("startDayTime", 0)
-                set(Calendar.YEAR, now.get(Calendar.YEAR))
-                set(Calendar.MONTH, now.get(Calendar.MONTH))
-                set(Calendar.DAY_OF_MONTH, now.get(Calendar.DAY_OF_MONTH))
-            }
+            val startDaytime = preferences.getString("startDayTime", Time(6, 0).toString())!!.toTime()
 
-            timeToCallback =  startDaytime.timeInMillis - now.timeInMillis
         } else {
-            val endDaytime = Calendar.getInstance().apply {
-                timeInMillis = preferences.getLong("endDayTime", 0)
-                set(Calendar.YEAR, now.get(Calendar.YEAR))
-                set(Calendar.MONTH, now.get(Calendar.MONTH))
-                set(Calendar.DAY_OF_MONTH, now.get(Calendar.DAY_OF_MONTH))
-            }
-
-            timeToCallback = endDaytime.timeInMillis - now.timeInMillis
+            val endDaytime = preferences.getString("endDayTime", Time(22, 0).toString())!!.toTime()
         }
 
         nighttimeCallbackTimer = Timer()

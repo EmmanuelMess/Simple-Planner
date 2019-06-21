@@ -28,11 +28,13 @@
         <com.emmanuelmess.simpleplanner.settings.TimePickerPreference
             app:key="startDayTime"
             app:title="Day starts at"
+            app:defaultValue="6:00"
             app:dependency="useDayNight"/>
 
         <com.emmanuelmess.simpleplanner.settings.TimePickerPreference
             app:key="endDayTime"
             app:title="Day ends at"
+            app:defaultValue="22:00"
             app:dependency="useDayNight"/>
 
     </PreferenceCategory>
