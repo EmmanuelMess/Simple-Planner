@@ -10,9 +10,7 @@ import com.emmanuelmess.simpleplanner.events.AllEventsActivity
 import com.emmanuelmess.simpleplanner.events.CreateDialogFragment
 import com.emmanuelmess.simpleplanner.events.MainFragment
 import com.emmanuelmess.simpleplanner.nightstate.NighttimeFragment
-import com.emmanuelmess.simpleplanner.settings.SettingsActivity
-import com.emmanuelmess.simpleplanner.settings.Time
-import com.emmanuelmess.simpleplanner.settings.toTime
+import com.emmanuelmess.simpleplanner.settings.*
 import kotlinx.android.synthetic.main.activity_main.*
 import java.util.*
 
@@ -62,22 +60,36 @@ class MainActivity : AppDatabaseAwareActivity() {
     }
 
     private fun setCallback() {
-        val callback = { runOnUiThread { showCorrectFragment() } }
+        val callback = { runOnUiThread {
+            showCorrectFragment()
+        } }
+
         val preferences = PreferenceManager.getDefaultSharedPreferences(applicationContext)
-        val now = Calendar.getInstance()
-        val timeToCallback: Long
+        val callbackTime: Time
 
         if(showNighttimeFragment()) {
-            val startDaytime = preferences.getString("startDayTime", Time(6, 0).toString())!!.toTime()
-
+            callbackTime = preferences.getString("startDayTime", Time(6, 0).toString())!!.toTime()
         } else {
-            val endDaytime = preferences.getString("endDayTime", Time(22, 0).toString())!!.toTime()
+            callbackTime = preferences.getString("endDayTime", Time(22, 0).toString())!!.toTime()
         }
+
+        val callbackCalendar = Calendar.getInstance().apply {
+            set(Calendar.HOUR_OF_DAY, callbackTime.hourOfDay)
+            set(Calendar.MINUTE, callbackTime.minute)
+        }
+
+        val now = Calendar.getInstance()
+
+        if(callbackCalendar.before(now)) {
+            callbackCalendar.set(Calendar.DAY_OF_YEAR, now.get(Calendar.DAY_OF_YEAR) +1)
+        }
+
+        val timeToCallback = callbackCalendar.timeInMillis - System.currentTimeMillis()
 
         nighttimeCallbackTimer = Timer()
         nighttimeCallbackTimer!!.schedule(object : TimerTask() {
             override fun run() = callback.invoke()
-        }, timeToCallback, 0)
+        }, timeToCallback)
     }
 
     private fun showCorrectFragment() {
@@ -114,14 +126,15 @@ class MainActivity : AppDatabaseAwareActivity() {
 
     private fun isNighttime(): Boolean {
         val preferences = PreferenceManager.getDefaultSharedPreferences(applicationContext)
-        val startDaytime = Calendar.getInstance().apply {
-            timeInMillis = preferences.getLong("startDayTime", 0)
-        }
-        val endDaytime = Calendar.getInstance().apply {
-            timeInMillis = preferences.getLong("endDayTime", 0)
-        }
+
+        val startDayTime = preferences.getString("startDayTime", DEFAULT_DAY_START)!!.toTime()
+        val startDaytimeCalendar = startDayTime.toCalendar()
+
+        val endDayTime = preferences.getString("endDayTime", DEFAULT_DAY_END)!!.toTime()
+        val endDaytimeCalendar = endDayTime.toCalendar()
+
         val now = Calendar.getInstance()
 
-        return now.before(startDaytime) || now.after(endDaytime)
+        return now.before(startDaytimeCalendar) || now.after(endDaytimeCalendar)
     }
 }
