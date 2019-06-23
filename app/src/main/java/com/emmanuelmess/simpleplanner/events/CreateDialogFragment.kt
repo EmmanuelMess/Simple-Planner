@@ -89,37 +89,41 @@ class CreateDialogFragment : DialogFragment() {
 
     private fun onMenuItemClick(item: MenuItem): Boolean {
         if (item.itemId == R.id.action_save) {
-            val startCalendar = Calendar.getInstance().setToFirstInstant().apply {
-                set(Calendar.MINUTE, timeStartChip.minute)
-                set(Calendar.HOUR_OF_DAY, timeStartChip.hourOfDay)
+            val checkFailed: () -> Boolean = {
+                val startCalendar = Calendar.getInstance().setToFirstInstant().apply {
+                    set(Calendar.MINUTE, timeStartChip.minute)
+                    set(Calendar.HOUR_OF_DAY, timeStartChip.hourOfDay)
+                }
+
+                val endCalendar = Calendar.getInstance().setToFirstInstant().apply {
+                    set(Calendar.MINUTE, timeEndChip.minute)
+                    set(Calendar.HOUR_OF_DAY, timeEndChip.hourOfDay)
+                }
+
+                if (!startCalendar.before(endCalendar)
+                    || (timeStartChip.minute == timeEndChip.minute && timeStartChip.hourOfDay == timeEndChip.hourOfDay)
+                ) {
+                    errorTextView.visibility = VISIBLE
+                    true
+                } else if (titleEditText.text == null || titleEditText.text!!.isEmpty()) {
+                    titleTextInputLayout.error = "Title can't be empty"
+                    true
+                } else {
+                    false
+                }
             }
 
-            val endCalendar = Calendar.getInstance().setToFirstInstant().apply {
-                set(Calendar.MINUTE, timeEndChip.minute)
-                set(Calendar.HOUR_OF_DAY, timeEndChip.hourOfDay)
-            }
-
-            var checkFailed = false
-            if(!startCalendar.before(endCalendar)
-                || (timeStartChip.minute == timeEndChip.minute && timeStartChip.hourOfDay == timeEndChip.hourOfDay)) {
-                errorTextView.visibility = VISIBLE
-                checkFailed = true
-            }
-
-            if(titleEditText.text == null || titleEditText.text!!.isEmpty()) {
-                titleTextInputLayout.error = "Title can't be empty"
-                checkFailed = true
-            }
-
-            if(checkFailed) {
+            if(checkFailed()) {
                 return true
             }
 
             val entity = EventEntity(
                 null,
                 titleEditText.text.toString(),
-                startCalendar.timeInMillis,
-                endCalendar.timeInMillis,
+                timeStartChip.hourOfDay.toShort(),
+                timeStartChip.minute.toShort(),
+                timeEndChip.hourOfDay.toShort(),
+                timeEndChip.minute.toShort(),
                 commentEditText.text.toString()
             )
 

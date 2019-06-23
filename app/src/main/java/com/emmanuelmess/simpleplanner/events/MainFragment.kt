@@ -48,8 +48,6 @@ class MainFragment : AppDatabaseAwareFragment() {
     fun load() {
         eventsLayout.removeAllViews()
 
-        val nowMillis = Calendar.getInstance().setToFirstDay().timeInMillis
-
         val uDatabase = WeakReference(database)
         AsyncTaskRunnable<List<Event>>(true, {
             uDatabase.get().let { sDatabase ->
@@ -57,7 +55,12 @@ class MainFragment : AppDatabaseAwareFragment() {
                     cancel(false)
                     null
                 } else {
-                    sDatabase.eventDao().getAllDoableNow(nowMillis).map { eventEntity ->
+                    val now = Calendar.getInstance()
+
+                    sDatabase.eventDao().getAllDoableNow(
+                        now.calendarHourOfDay.toShort(),
+                        now.calendarMinute.toShort()
+                    ).map { eventEntity ->
                         eventEntity.toEvent(requireContext())
                     }
                 }
