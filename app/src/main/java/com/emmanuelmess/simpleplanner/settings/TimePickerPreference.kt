@@ -2,6 +2,7 @@ package com.emmanuelmess.simpleplanner.settings
 
 import android.app.TimePickerDialog
 import android.content.Context
+import android.content.res.TypedArray
 import android.text.format.DateFormat
 import android.text.format.DateUtils
 import android.util.AttributeSet
@@ -38,6 +39,10 @@ class TimePickerPreference(ctxt: Context, attrs: AttributeSet) : DialogPreferenc
             minute,
             DateFormat.is24HourFormat(context)
         ).show()
+    }
+
+    override fun onGetDefaultValue(a: TypedArray, index: Int): Any? {
+        return a.getString(index)
     }
 
     override fun onSetInitialValue(defaultValue: Any?) {
