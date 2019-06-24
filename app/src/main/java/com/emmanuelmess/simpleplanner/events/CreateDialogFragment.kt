@@ -85,6 +85,10 @@ class CreateDialogFragment : DialogFragment() {
         }
         timeStartChip.callback = callback
         timeEndChip.callback = callback
+
+
+        timeStartChip.setValue(10, 0)
+        timeEndChip.setValue(15, 0)
     }
 
     private fun onMenuItemClick(item: MenuItem): Boolean {

@@ -34,15 +34,11 @@ class TimeChip @JvmOverloads constructor(
         reloadView()
     }
 
-    var error: Boolean? = null
-        set(value) {
-            if(value != null) {
-                setChipBackgroundColorResource(R.color.error)
-            } else {
-                setChipBackgroundColorResource(R.color.accent)
-            }
-            field = value
-        }
+    fun setValue(hourOfDay: Int, minute: Int) {
+        this.hourOfDay = hourOfDay
+        this.minute = minute
+        reloadView()
+    }
 
     private fun onClick(view: View) {
         TimePickerDialog(
