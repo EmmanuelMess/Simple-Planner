@@ -23,8 +23,6 @@ class AllEventsActivity : AppDatabaseAwareActivity() {
         setSupportActionBar(toolbar)
 
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
-
-        load()
     }
 
     override fun onResume() {
