@@ -46,7 +46,7 @@ class TimePickerPreference(ctxt: Context, attrs: AttributeSet) : DialogPreferenc
     }
 
     override fun onSetInitialValue(defaultValue: Any?) {
-        if (defaultValue !is String) {
+        if (defaultValue !is String?) {
             throw IllegalArgumentException()
         }
 
