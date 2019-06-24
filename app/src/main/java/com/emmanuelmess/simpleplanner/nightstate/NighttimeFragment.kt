@@ -1,6 +1,5 @@
 package com.emmanuelmess.simpleplanner.nightstate
 
-import android.content.Context
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -21,13 +20,5 @@ class NighttimeFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View? {
         return inflater.inflate(R.layout.fragment_nighttime, container, false)
-    }
-
-    override fun onAttach(context: Context) {
-        super.onAttach(context)
-    }
-
-    override fun onDetach() {
-        super.onDetach()
     }
 }
