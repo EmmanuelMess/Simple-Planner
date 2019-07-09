@@ -27,6 +27,11 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
     }
+    testOptions {
+        unitTests {
+            includeAndroidResources = true
+        }
+    }
     dataBinding {
         enabled = true
     }
@@ -45,7 +50,17 @@ dependencies {
 
     implementation 'com.google.android.material:material:1.0.0'
 
-    testImplementation 'junit:junit:4.12'
-    androidTestImplementation 'androidx.test:runner:1.2.0'
+
+    testImplementation 'androidx.test:core:1.2.0'
+
+    testImplementation 'androidx.test:runner:1.2.0'
+    testImplementation 'androidx.test:rules:1.2.0'
+
+    // Assertions
+    testImplementation 'androidx.test.ext:junit:1.1.1'
+    testImplementation 'androidx.test.ext:truth:1.2.0'
+    testImplementation 'com.google.truth:truth:0.45'
+
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.2.0'
+    testImplementation 'org.robolectric:robolectric:4.3'
 }

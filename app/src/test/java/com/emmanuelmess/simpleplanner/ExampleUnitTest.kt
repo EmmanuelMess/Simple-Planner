@@ -1,17 +1,26 @@
 package com.emmanuelmess.simpleplanner
 
+import android.content.Intent
+import androidx.test.core.app.ActivityScenario
+import com.emmanuelmess.simpleplanner.events.AllEventsActivity
+import org.junit.Assert.assertEquals
 import org.junit.Test
+import org.junit.runner.RunWith
+import org.robolectric.RobolectricTestRunner
+import org.robolectric.Shadows.shadowOf
 
-import org.junit.Assert.*
-
-/**
- * Example local unit test, which will execute on the development machine (host).
- *
- * See [testing documentation](http://d.android.com/tools/testing).
- */
+@RunWith(RobolectricTestRunner::class)
 class ExampleUnitTest {
     @Test
-    fun addition_isCorrect() {
-        assertEquals(4, 2 + 2)
+    fun testFab() {
+        ActivityScenario.launch(MainActivity::class.java).use { scenario ->
+            scenario.onActivity { activity ->
+                shadowOf(activity).clickMenuItem(R.id.action_allevents)
+
+                val expectedIntent = Intent(activity, AllEventsActivity::class.java)
+                val actual = shadowOf(activity.application).nextStartedActivity
+                assertEquals(expectedIntent.component, actual.component)
+            }
+        }
     }
 }
