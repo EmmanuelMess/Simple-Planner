@@ -110,7 +110,9 @@ class MainActivity : AppDatabaseAwareActivity() {
             fab.setOnClickListener { _ ->
                 CreateDialogFragment.newInstance().apply {
                     show(supportFragmentManager.beginTransaction(), CreateDialogFragment.TAG)
-                    onPositiveButton = (mainFragment!!).adapter::addItem
+                    onPositiveButton = {
+                        (mainFragment!!).load()
+                    }
                 }
             }
         }
