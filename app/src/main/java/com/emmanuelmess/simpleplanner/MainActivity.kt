@@ -97,14 +97,14 @@ class MainActivity : AppDatabaseAwareActivity() {
             fab.hide()
             supportFragmentManager
                 .beginTransaction()
-                .add(R.id.mainFrameLayout, NighttimeFragment.newInstance(), NighttimeFragment.TAG)
+                .replace(R.id.mainFrameLayout, NighttimeFragment.newInstance(), NighttimeFragment.TAG)
                 .commit()
         } else {
             mainFragment = MainFragment.newInstance()
 
             supportFragmentManager
                 .beginTransaction()
-                .add(R.id.mainFrameLayout, mainFragment!!, MainFragment.TAG)
+                .replace(R.id.mainFrameLayout, mainFragment!!, MainFragment.TAG)
                 .commit()
 
             fab.setOnClickListener { _ ->
