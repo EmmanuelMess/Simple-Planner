@@ -4,13 +4,10 @@ import android.content.Intent
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
-import androidx.preference.PreferenceManager
 import com.emmanuelmess.simpleplanner.common.AppDatabaseAwareActivity
 import com.emmanuelmess.simpleplanner.events.AllEventsActivity
 import com.emmanuelmess.simpleplanner.events.CreateDialogFragment
 import com.emmanuelmess.simpleplanner.events.MainFragment
-import com.emmanuelmess.simpleplanner.nightstate.NighttimeFragment
-import com.emmanuelmess.simpleplanner.settings.*
 import kotlinx.android.synthetic.main.activity_main.*
 import java.util.*
 
@@ -27,12 +24,21 @@ class MainActivity : AppDatabaseAwareActivity() {
         setContentView(R.layout.activity_main)
         setSupportActionBar(toolbar)
 
-        showCorrectFragment()
-    }
+        mainFragment = MainFragment.newInstance()
 
-    override fun onResume() {
-        super.onResume()
-        setCallback()
+        supportFragmentManager
+            .beginTransaction()
+            .replace(R.id.mainFrameLayout, mainFragment!!, MainFragment.TAG)
+            .commit()
+
+        fab.setOnClickListener { _ ->
+            CreateDialogFragment.newInstance().apply {
+                show(supportFragmentManager.beginTransaction(), CreateDialogFragment.TAG)
+                onPositiveButton = {
+                    (mainFragment!!).load()
+                }
+            }
+        }
     }
 
     override fun onPause() {
@@ -51,92 +57,8 @@ class MainActivity : AppDatabaseAwareActivity() {
                 startActivity(Intent(applicationContext, AllEventsActivity::class.java))
                 true
             }
-            R.id.action_settings -> {
-                startActivity(Intent(applicationContext, SettingsActivity::class.java))
-                true
-            }
             else -> super.onOptionsItemSelected(item)
         }
     }
 
-    private fun setCallback() {
-        val callback = { runOnUiThread {
-            showCorrectFragment()
-        } }
-
-        val preferences = PreferenceManager.getDefaultSharedPreferences(applicationContext)
-        val callbackTime: Time
-
-        if(showNighttimeFragment()) {
-            callbackTime = preferences.getString("startDayTime", Time(6, 0).toString())!!.toTime()
-        } else {
-            callbackTime = preferences.getString("endDayTime", Time(22, 0).toString())!!.toTime()
-        }
-
-        val callbackCalendar = Calendar.getInstance().apply {
-            set(Calendar.HOUR_OF_DAY, callbackTime.hourOfDay)
-            set(Calendar.MINUTE, callbackTime.minute)
-        }
-
-        val now = Calendar.getInstance()
-
-        if(callbackCalendar.before(now)) {
-            callbackCalendar.set(Calendar.DAY_OF_YEAR, now.get(Calendar.DAY_OF_YEAR) +1)
-        }
-
-        val timeToCallback = callbackCalendar.timeInMillis - System.currentTimeMillis()
-
-        nighttimeCallbackTimer = Timer()
-        nighttimeCallbackTimer!!.schedule(object : TimerTask() {
-            override fun run() = callback.invoke()
-        }, timeToCallback)
-    }
-
-    private fun showCorrectFragment() {
-        if (showNighttimeFragment()) {
-            fab.hide()
-            supportFragmentManager
-                .beginTransaction()
-                .replace(R.id.mainFrameLayout, NighttimeFragment.newInstance(), NighttimeFragment.TAG)
-                .commit()
-        } else {
-            mainFragment = MainFragment.newInstance()
-
-            supportFragmentManager
-                .beginTransaction()
-                .replace(R.id.mainFrameLayout, mainFragment!!, MainFragment.TAG)
-                .commit()
-
-            fab.setOnClickListener { _ ->
-                CreateDialogFragment.newInstance().apply {
-                    show(supportFragmentManager.beginTransaction(), CreateDialogFragment.TAG)
-                    onPositiveButton = {
-                        (mainFragment!!).load()
-                    }
-                }
-            }
-        }
-
-        setCallback()
-    }
-
-    private fun showNighttimeFragment(): Boolean {
-        val preferences = PreferenceManager.getDefaultSharedPreferences(applicationContext)
-
-        return preferences.getBoolean("useDayNight", false) && isNighttime()
-    }
-
-    private fun isNighttime(): Boolean {
-        val preferences = PreferenceManager.getDefaultSharedPreferences(applicationContext)
-
-        val startDayTime = preferences.getString("startDayTime", DEFAULT_DAY_START)!!.toTime()
-        val startDaytimeCalendar = startDayTime.toCalendar()
-
-        val endDayTime = preferences.getString("endDayTime", DEFAULT_DAY_END)!!.toTime()
-        val endDaytimeCalendar = endDayTime.toCalendar()
-
-        val now = Calendar.getInstance()
-
-        return now.before(startDaytimeCalendar) || now.after(endDaytimeCalendar)
-    }
 }

@@ -7,12 +7,6 @@
     <string name="title">Title</string>
     <string name="accept">Accept</string>
 
-    <string name="itsnighttime">Its night time!</string>
-
-    <string name="title_activity_settings">Settings</string>
-    <string name="action_settings">Settings</string>
-    <string name="wake_header">Awake time</string>
-
     <string name="title_activity_all_events">All Events</string>
     <string name="allevents">All events</string>
 </resources>
