@@ -19,15 +19,16 @@ import java.util.concurrent.Future
 import java.util.concurrent.FutureTask
 import kotlin.concurrent.thread
 
-class CreateDialogFragment : DialogFragment() {
+class EditDialogFragment : DialogFragment() {
     companion object {
         const val TAG = "dialog_fragment"
 
         @JvmStatic
-        fun newInstance() = CreateDialogFragment()
+        fun newInstance() = EditDialogFragment()
     }
 
     var onPositiveButton: ((Event) -> Unit)? = null
+    var eventToEdit: Event? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -58,7 +59,6 @@ class CreateDialogFragment : DialogFragment() {
             setOnMenuItemClickListener(::onMenuItemClick)
         }
 
-
         titleEditText.setOnEditorActionListener { v, actionId, event ->
             if(titleEditText.text != null && titleEditText.text!!.isEmpty()) {
                 titleTextInputLayout.error = null
@@ -86,9 +86,17 @@ class CreateDialogFragment : DialogFragment() {
         timeStartChip.callback = callback
         timeEndChip.callback = callback
 
-
-        timeStartChip.setValue(10, 0)
-        timeEndChip.setValue(15, 0)
+        if(eventToEdit != null) {
+            eventToEdit?.let { eventToEdit ->
+                titleEditText.setText(eventToEdit.title)
+                timeStartChip.setValue(eventToEdit.timeStartHourOfDay, eventToEdit.timeStartMinute)
+                timeEndChip.setValue(eventToEdit.timeEndHourOfDay, eventToEdit.timeEndMinute)
+                commentEditText.setText(eventToEdit.comment)
+            }
+        } else {
+            timeStartChip.setValue(10, 0)
+            timeEndChip.setValue(15, 0)
+        }
     }
 
     private fun onMenuItemClick(item: MenuItem): Boolean {
@@ -122,15 +130,14 @@ class CreateDialogFragment : DialogFragment() {
             }
 
             val entity = EventEntity(
-                null,
+                eventToEdit?.getUid?.invoke(),
                 titleEditText.text.toString(),
-                timeStartChip.hourOfDay.toShort(),
-                timeStartChip.minute.toShort(),
-                timeEndChip.hourOfDay.toShort(),
-                timeEndChip.minute.toShort(),
+                timeStartChip.hourOfDay,
+                timeStartChip.minute,
+                timeEndChip.hourOfDay,
+                timeEndChip.minute,
                 commentEditText.text.toString()
             )
-
 
             val futureId = saveData(entity)
             onPositiveButton?.invoke(entity.toEvent(requireContext(), futureId))
@@ -146,7 +153,7 @@ class CreateDialogFragment : DialogFragment() {
     private fun saveData(entity: EventEntity): Future<Int> {
         val uDatabase = WeakReference((activity as AppDatabaseAwareActivity).database)
 
-        val future = FutureTask<Int> {
+        val future = FutureTask {
             val sDatabase = uDatabase.get() ?: throw NoDatabaseException()
 
             sDatabase.eventDao().insert(entity).toInt()

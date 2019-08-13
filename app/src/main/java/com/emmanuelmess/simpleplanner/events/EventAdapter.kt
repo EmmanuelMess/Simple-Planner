@@ -10,30 +10,40 @@ import com.emmanuelmess.simpleplanner.common.MaterialColors
 import com.emmanuelmess.simpleplanner.databinding.CardEventsCommentcontractedBinding
 import com.emmanuelmess.simpleplanner.databinding.CardEventsCommentextendedBinding
 import com.emmanuelmess.simpleplanner.databinding.CardEventsNocommentBinding
+import com.emmanuelmess.simpleplanner.databinding.CardEventsSelectedBinding
 import kotlinx.android.synthetic.main.content_card_events_commentcontracted.view.*
+import kotlinx.android.synthetic.main.content_card_events_commentcontracted.view.constraintLayout
+import kotlinx.android.synthetic.main.content_card_events_selected.view.*
 
 class EventAdapter(
     val context: Context,
     val onDone: (Event) -> Unit,
+    val onEdit: (Event) -> Unit,
     eventsRaw: List<Event>
 ): RecyclerView.Adapter<EventAdapter.ItemViewHolder>() {
     val NO_COMMENT_TYPE = 0
     val COMMENTED_TYPE_COLLAPSED = 1
     val COMMENTED_TYPE_EXTENDED = 2
+    val SELECTED_TYPE = 3
 
     private var events: MutableList<ItemData> = eventsRaw.map(::toItemData).toMutableList()
+    private var selectedEventIndex: Int? = null
 
     init {
         setHasStableIds(true)
     }
 
     override fun getItemViewType(position: Int): Int {
-        return when(events[position].type) {
+        return if(events[position].isSelected) {
+            SELECTED_TYPE
+        } else when(events[position].type) {
             NO_COMMENT_TYPE -> NO_COMMENT_TYPE
             else ->
                 if(events[position].isExtended == false)
                     COMMENTED_TYPE_COLLAPSED
-                else COMMENTED_TYPE_EXTENDED
+                else if(events[position].isExtended == true)
+                    COMMENTED_TYPE_EXTENDED
+                else throw IllegalStateException()
         }
     }
 
@@ -50,6 +60,9 @@ class EventAdapter(
             }
             COMMENTED_TYPE_EXTENDED -> {
                 binding = CardEventsCommentextendedBinding.inflate(layoutInflater, parent, false)
+            }
+            SELECTED_TYPE -> {
+                binding = CardEventsSelectedBinding.inflate(layoutInflater, parent, false)
             }
             else -> throw IllegalStateException()
         }
@@ -70,10 +83,21 @@ class EventAdapter(
             COMMENTED_TYPE_EXTENDED -> {
                 (holder.dataBinding as CardEventsCommentextendedBinding).event = event
             }
+            SELECTED_TYPE -> {
+                (holder.dataBinding as CardEventsSelectedBinding).event = event
+            }
             else -> throw IllegalStateException()
         }
 
-        loadCard(events[position], getItemViewType(position), holder.dataBinding.root as CardView)
+        if(getItemViewType(position) != SELECTED_TYPE) {
+            loadCard(
+                events[position],
+                getItemViewType(position),
+                holder.dataBinding.root as CardView
+            )
+        } else {
+            loadSelectedCard(holder.dataBinding.root as CardView)
+        }
     }
 
     private fun loadCard(
@@ -94,9 +118,29 @@ class EventAdapter(
             }
         }
 
+        constraintLayout.setOnLongClickListener {
+            onLongClick(itemData)
+            true
+        }
+
         doneButton.setOnClickListener {
             onDone(itemData.event)
             removeItemAt(events.indexOf(itemData))
+        }
+    }
+
+    private fun loadSelectedCard(
+        card: CardView
+    ) = with(card) {
+        isSelected = true
+
+        settingsButton.setOnClickListener {
+            val itemData = events[selectedEventIndex!!]
+
+            itemData.isSelected = false
+            notifyItemChanged(selectedEventIndex!!)
+            selectedEventIndex = null
+            onEdit(itemData.event)
         }
     }
 
@@ -110,9 +154,26 @@ class EventAdapter(
         notifyItemChanged(events.indexOf(itemData))
     }
 
-    fun addItem(event: Event) {
-        this.events.add(toItemData(event))
-        notifyItemInserted(itemCount-1)
+    private fun onLongClick(itemData: ItemData) {
+        if(selectedEventIndex != null) {
+            events[selectedEventIndex!!].isSelected = false
+            notifyItemChanged(selectedEventIndex!!)
+        }
+
+        itemData.isSelected = true
+        selectedEventIndex = events.indexOf(itemData)
+        notifyItemChanged(events.indexOf(itemData))
+    }
+
+    fun replaceItem(event: Event, newEvent: Event) {
+        val itemIndex = findPosition(event)
+        removeItemAt(itemIndex)
+        addItemAt(itemIndex, newEvent)
+    }
+
+    fun addItemAt(index: Int, event: Event) {
+        this.events.add(index, toItemData(event))
+        notifyItemInserted(index)
     }
 
     fun setItems(events: List<Event>) {
@@ -129,6 +190,10 @@ class EventAdapter(
     fun removeItemAt(index: Int) {
         events.removeAt(index)
         notifyItemRemoved(index)
+    }
+
+    private fun findPosition(event: Event): Int {
+        return this.events.indexOf(this.events.find{ it.event == event })
     }
 
     private fun toItemData(event: Event): ItemData {
@@ -149,7 +214,8 @@ class EventAdapter(
     data class ItemData(
         val event: Event,
         var type: Int,
-        var isExtended: Boolean? = null
+        var isExtended: Boolean? = null,
+        var isSelected: Boolean = false
     ) {
         val id = getNewId()
 

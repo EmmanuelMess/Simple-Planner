@@ -34,7 +34,7 @@ class AllEventsActivity : AppDatabaseAwareActivity() {
                     }
                 }
             }
-        }, listOf())
+        }, {}, listOf())
 
         allEventsLayout.adapter = adapter
         allEventsLayout.layoutManager = LinearLayoutManager(this, RecyclerView.VERTICAL, false)

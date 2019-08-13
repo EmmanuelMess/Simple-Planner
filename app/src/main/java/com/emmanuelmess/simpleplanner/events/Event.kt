@@ -21,17 +21,22 @@ data class Event(
     val title: String,
     val timeSpan: String,
     val comment: String,
-    val delete: EventDao.() -> Unit
+    val delete: EventDao.() -> Unit,
+    val timeStartHourOfDay: Int,
+    val timeStartMinute: Int,
+    val timeEndHourOfDay: Int,
+    val timeEndMinute: Int,
+    val getUid: () -> Int?
 )
 
 @Entity(tableName = EVENT_TABLE)
 data class EventEntity(
     @PrimaryKey val uid: Int? = null,
     @ColumnInfo(name = TITLE_COLUMN) val title: String,
-    @ColumnInfo(name = TIMESTART_HOUROFDAY_COLUMN) val timeStartHourOfDay: Short,
-    @ColumnInfo(name = TIMESTART_MINUTE_COLUMN) val timeStartMinute: Short,
-    @ColumnInfo(name = TIMEEND_HOUROFDAY_COLUMN) val timeEndHourOfDay: Short,
-    @ColumnInfo(name = TIMEEND_MINUTE_COLUMN) val timeEndMinute: Short,
+    @ColumnInfo(name = TIMESTART_HOUROFDAY_COLUMN) val timeStartHourOfDay: Int,
+    @ColumnInfo(name = TIMESTART_MINUTE_COLUMN) val timeStartMinute: Int,
+    @ColumnInfo(name = TIMEEND_HOUROFDAY_COLUMN) val timeEndHourOfDay: Int,
+    @ColumnInfo(name = TIMEEND_MINUTE_COLUMN) val timeEndMinute: Int,
     @ColumnInfo(name = COMMENT_COLUMN) val comment: String
 ) {
     @Suppress("MoveLambdaOutsideParentheses")
@@ -39,33 +44,38 @@ data class EventEntity(
         uid!!
 
         val timeStart = Calendar.getInstance().setToFirstInstant().apply {
-            set(Calendar.HOUR_OF_DAY, timeStartHourOfDay.toInt())
-            set(Calendar.MINUTE, timeStartMinute.toInt())
+            set(Calendar.HOUR_OF_DAY, timeStartHourOfDay)
+            set(Calendar.MINUTE, timeStartMinute)
         }.timeInMillis
 
         val timeEnd = Calendar.getInstance().setToFirstInstant().apply {
-            set(Calendar.HOUR_OF_DAY, timeEndHourOfDay.toInt())
-            set(Calendar.MINUTE, timeEndMinute.toInt())
+            set(Calendar.HOUR_OF_DAY, timeEndHourOfDay)
+            set(Calendar.MINUTE, timeEndMinute)
         }.timeInMillis
 
         return Event(
             title,
             DateUtils.formatDateRange(context, timeStart, timeEnd, DateUtils.FORMAT_SHOW_TIME),
             comment,
-            { this.delete(uid) }
+            { this.delete(uid) },
+            timeStartHourOfDay,
+            timeStartMinute,
+            timeEndHourOfDay,
+            timeEndMinute,
+            { uid }
         )
     }
 
     @Suppress("MoveLambdaOutsideParentheses")
     fun toEvent(context: Context, futureId: Future<Int>): Event {
         val timeStart = Calendar.getInstance().setToFirstInstant().apply {
-            set(Calendar.HOUR_OF_DAY, timeStartHourOfDay.toInt())
-            set(Calendar.MINUTE, timeStartMinute.toInt())
+            set(Calendar.HOUR_OF_DAY, timeStartHourOfDay)
+            set(Calendar.MINUTE, timeStartMinute)
         }.timeInMillis
 
         val timeEnd = Calendar.getInstance().setToFirstInstant().apply {
-            set(Calendar.HOUR_OF_DAY, timeEndHourOfDay.toInt())
-            set(Calendar.MINUTE, timeEndMinute.toInt())
+            set(Calendar.HOUR_OF_DAY, timeEndHourOfDay)
+            set(Calendar.MINUTE, timeEndMinute)
         }.timeInMillis
 
         return Event(
@@ -79,6 +89,23 @@ data class EventEntity(
                     if(e.cause is NoDatabaseException) {
                         //Database was probably null
                         // and nothing was written to the database
+                    } else {
+                        throw RuntimeException(e)
+                    }
+                }
+            },
+            timeStartHourOfDay,
+            timeStartMinute,
+            timeEndHourOfDay,
+            timeEndMinute,
+            {
+                try {
+                    futureId.get()
+                } catch (e: ExecutionException) {
+                    if (e.cause is NoDatabaseException) {
+                        //Database was probably null
+                        // and nothing was written to the database
+                        null
                     } else {
                         throw RuntimeException(e)
                     }
@@ -101,7 +128,7 @@ interface EventDao {
         """)
     fun getAllDoableNow(nowHourOfDay: Short, minute: Short): List<EventEntity>
 
-    @Insert
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun insert(event: EventEntity): Long
 
     @Query("DELETE FROM $EVENT_TABLE WHERE $ID_COLUMN=:id")

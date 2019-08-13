@@ -21,6 +21,8 @@ class MainFragment : AppDatabaseAwareFragment() {
         fun newInstance() = MainFragment()
     }
 
+    var startEditEventFragment: ((event: Event?, onPositive: (Event) -> Unit) -> Unit)? = null
+
     lateinit var adapter: EventAdapter
         private set
 
@@ -35,6 +37,10 @@ class MainFragment : AppDatabaseAwareFragment() {
                         event.delete(sDatabase.eventDao())
                     }
                 }
+            }
+        }, { event ->
+            startEditEventFragment?.invoke(event) { newEvent ->
+                adapter.replaceItem(event, newEvent)
             }
         }, listOf())
     }

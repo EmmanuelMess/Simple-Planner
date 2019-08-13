@@ -6,7 +6,8 @@ import android.view.Menu
 import android.view.MenuItem
 import com.emmanuelmess.simpleplanner.common.AppDatabaseAwareActivity
 import com.emmanuelmess.simpleplanner.events.AllEventsActivity
-import com.emmanuelmess.simpleplanner.events.CreateDialogFragment
+import com.emmanuelmess.simpleplanner.events.EditDialogFragment
+import com.emmanuelmess.simpleplanner.events.Event
 import com.emmanuelmess.simpleplanner.events.MainFragment
 import kotlinx.android.synthetic.main.activity_main.*
 import java.util.*
@@ -26,12 +27,11 @@ class MainActivity : AppDatabaseAwareActivity() {
             .replace(R.id.mainFrameLayout, mainFragment, MainFragment.TAG)
             .commit()
 
+        mainFragment.startEditEventFragment = ::startEditEventFragment
+
         fab.setOnClickListener { _ ->
-            CreateDialogFragment.newInstance().apply {
-                show(supportFragmentManager.beginTransaction(), CreateDialogFragment.TAG)
-                onPositiveButton = {
-                    mainFragment.load()
-                }
+            startEditEventFragment(null) { event ->
+                mainFragment.load()
             }
         }
     }
@@ -53,6 +53,14 @@ class MainActivity : AppDatabaseAwareActivity() {
                 true
             }
             else -> super.onOptionsItemSelected(item)
+        }
+    }
+
+    fun startEditEventFragment(event: Event?, onPositive: (Event) -> Unit) {
+        EditDialogFragment.newInstance().apply {
+            eventToEdit = event
+            show(supportFragmentManager.beginTransaction(), EditDialogFragment.TAG)
+            onPositiveButton = onPositive
         }
     }
 
