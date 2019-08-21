@@ -12,11 +12,6 @@ import kotlinx.android.synthetic.main.activity_main.*
 import java.util.*
 
 class MainActivity : AppDatabaseAwareActivity() {
-
-    /**
-     * Iff the main fragment is available it will be referenced here
-     */
-    var mainFragment: MainFragment? = null
     var nighttimeCallbackTimer: Timer? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -24,18 +19,18 @@ class MainActivity : AppDatabaseAwareActivity() {
         setContentView(R.layout.activity_main)
         setSupportActionBar(toolbar)
 
-        mainFragment = MainFragment.newInstance()
+        val mainFragment = MainFragment.newInstance()
 
         supportFragmentManager
             .beginTransaction()
-            .replace(R.id.mainFrameLayout, mainFragment!!, MainFragment.TAG)
+            .replace(R.id.mainFrameLayout, mainFragment, MainFragment.TAG)
             .commit()
 
         fab.setOnClickListener { _ ->
             CreateDialogFragment.newInstance().apply {
                 show(supportFragmentManager.beginTransaction(), CreateDialogFragment.TAG)
                 onPositiveButton = {
-                    (mainFragment!!).load()
+                    mainFragment.load()
                 }
             }
         }
