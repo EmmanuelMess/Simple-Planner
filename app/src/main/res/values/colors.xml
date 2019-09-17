@@ -1,8 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?>
-<resources>
-    <color name="primary">#7CB342</color>
-    <color name="primaryDark">#33691E</color>
-    <color name="selectedCard">#1B5E20</color>
-    <color name="accent">#00C853</color>
-    <color name="error">#FF5722</color>
-</resources>
